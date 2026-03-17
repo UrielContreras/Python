@@ -1,7 +1,14 @@
 WIDTH= 800
 HEIGHT= 600
-Fps= 60
+FPS= 60
 title= "Simulación Física con Pymunk y Pygame"
 
-bg_color= (240, 240, 240) 
-white= (255, 255, 255)
+BG_COLOR= (240, 240, 240) 
+GROUND_COLOR= (50, 50, 50)
+BALL_COLOR= (46, 204, 113)
+LINE_COLOR= (255, 255, 255)
+WHITE= (255, 255, 255)
+
+GRAVITY= (0, 900)
+BALL_RADIUS= 25
+BALL_MASS= 1
