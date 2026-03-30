@@ -1,5 +1,7 @@
 import sys
+import os
 import pygame
+import pygame_gui
 
 from .settings import WIDTH, HEIGHT, FPS, title
 
@@ -10,46 +12,61 @@ class Menu:
 		pygame.display.set_caption(title)
 		self.pantalla = pygame.display.set_mode((WIDTH, HEIGHT))
 		self.reloj = pygame.time.Clock()
-
-		self.font_titulo = pygame.font.SysFont("arial", 52, bold=True)
-		self.font_texto = pygame.font.SysFont("arial", 28)
-
+		theme_path = os.path.abspath(
+			os.path.join(os.path.dirname(__file__), "..", "Assets", "Fonts", "temas", "tema.json")
+		)
+		self.ui_manager = pygame_gui.UIManager((WIDTH, HEIGHT))
+		font_path = os.path.abspath(
+			os.path.join(os.path.dirname(__file__), "..", "Assets", "Fonts", "PressStart2P-Regular.ttf")
+		)
+		self.ui_manager.add_font_paths("Fuente_Principal", font_path)
+		self.ui_manager.preload_fonts([
+			{"name": "Fuente_Principal", "point_size": 20, "style": "regular", "antialiased": "1"}
+		])
+		self.ui_manager.get_theme().load_theme(theme_path)
 		self.bg_color = (28, 30, 38)
-		self.panel_color = (41, 45, 57)
-		self.play_color = (46, 204, 113)
-		self.exit_color = (231, 76, 60)
-		self.text_color = (245, 245, 245)
 
-		self.play_rect = pygame.Rect(0, 0, 230, 60)
-		self.exit_rect = pygame.Rect(0, 0, 230, 60)
-		self.play_rect.center = (WIDTH // 2, HEIGHT // 2 + 15)
-		self.exit_rect.center = (WIDTH // 2, HEIGHT // 2 + 95)
+		panel_rect = pygame.Rect(0, 0, 520, 360)
+		panel_rect.center = (WIDTH // 2, HEIGHT // 2)
 
-	def _draw(self):
-		self.pantalla.fill(self.bg_color)
+		self.panel = pygame_gui.elements.UIPanel(
+			relative_rect=panel_rect,
+			manager=self.ui_manager
+		)
 
-		panel = pygame.Rect(0, 0, 520, 360)
-		panel.center = (WIDTH // 2, HEIGHT // 2)
-		pygame.draw.rect(self.pantalla, self.panel_color, panel, border_radius=18)
+		self.title_label = pygame_gui.elements.UILabel(
+			relative_rect=pygame.Rect((60, 42), (400, 56)),
+			text="Simulacion Fisica",
+			manager=self.ui_manager,
+			container=self.panel
+		)
 
-		titulo = self.font_titulo.render("Simulacion Fisica", True, self.text_color)
-		titulo_rect = titulo.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 95))
-		self.pantalla.blit(titulo, titulo_rect)
+		self.subtitle_label = pygame_gui.elements.UILabel(
+			relative_rect=pygame.Rect((60, 98), (400, 36)),
+			text="Click para seleccionar una opcion",
+			manager=self.ui_manager,
+			container=self.panel
+		)
 
-		subtitulo = self.font_texto.render("Click para seleccionar una opcion", True, self.text_color)
-		subtitulo_rect = subtitulo.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 45))
-		self.pantalla.blit(subtitulo, subtitulo_rect)
+		self.play_button = pygame_gui.elements.UIButton(
+			object_id="#play_button",
+			relative_rect=pygame.Rect((145, 172), (230, 60)),
+			text="Jugar",
+			manager=self.ui_manager,
+			container=self.panel
+		)
 
-		pygame.draw.rect(self.pantalla, self.play_color, self.play_rect, border_radius=12)
-		pygame.draw.rect(self.pantalla, self.exit_color, self.exit_rect, border_radius=12)
-
-		play_text = self.font_texto.render("Jugar", True, (20, 20, 20))
-		exit_text = self.font_texto.render("Salir", True, self.text_color)
-		self.pantalla.blit(play_text, play_text.get_rect(center=self.play_rect.center))
-		self.pantalla.blit(exit_text, exit_text.get_rect(center=self.exit_rect.center))
+		self.exit_button = pygame_gui.elements.UIButton(
+			relative_rect=pygame.Rect((145, 252), (230, 60)),
+			text="Salir",
+			manager=self.ui_manager,
+			container=self.panel
+		)
 
 	def run(self):
 		while True:
+			delta_time = self.reloj.tick(FPS) / 1000.0
+
 			for evento in pygame.event.get():
 				if evento.type == pygame.QUIT:
 					pygame.quit()
@@ -61,12 +78,16 @@ class Menu:
 					if evento.key == pygame.K_ESCAPE:
 						return "quit"
 
-				if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-					if self.play_rect.collidepoint(evento.pos):
+				if evento.type == pygame_gui.UI_BUTTON_PRESSED:
+					if evento.ui_element == self.play_button:
 						return "play"
-					if self.exit_rect.collidepoint(evento.pos):
+					if evento.ui_element == self.exit_button:
 						return "quit"
 
-			self._draw()
+				self.ui_manager.process_events(evento)
+
+			self.ui_manager.update(delta_time)
+
+			self.pantalla.fill(self.bg_color)
+			self.ui_manager.draw_ui(self.pantalla)
 			pygame.display.flip()
-			self.reloj.tick(FPS)

@@ -1,0 +1,28 @@
+{
+    "#play_button": {
+        "colours": {
+            "normal_bg": "#00A86B",
+            "hovered_bg": "#00C27A",
+            "active_bg": "#008A59",
+            "normal_text": "#FFFFFF",
+            "hovered_text": "#FFFFFF",
+            "active_text": "#EFFFF8",
+            "normal_border": "#0B5D3B",
+            "hovered_border": "#0E6E47",
+            "active_border": "#084A2F"
+        },
+        "misc": {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "14",
+            "border_width": "2",
+            "shadow_width": "2"
+        },
+        "font": {
+            "name": "Fuente_Principal",
+            "size": "20",
+            "bold": "0",
+            "italic": "0",
+            "antialiased": "1"
+        }      
+    }
+}
